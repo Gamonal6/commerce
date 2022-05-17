@@ -6,10 +6,10 @@ class User(AbstractUser):
     pass
 
 
-class auctions(models.Model):
+class Listings(models.Model):
     title = models.CharField(max_length=30)
     bids = models.IntegerField()
     description = models.TextField(max_length=400)
     img_url = models.CharField(max_length=200)
     category = models.CharField(max_length=20)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner_id = models.ForeignKey(User, on_delete=models.CASCADE)

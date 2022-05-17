@@ -3,5 +3,9 @@
 {% block body %}
     <h2>Active Listings</h2>
 
-    TODO
+
+    {% for active in active_listings %}
+        <a href="{% url 'clisting' active.title %}">{{ active.title }}</a>
+    {% endfor %}
+    
 {% endblock %}

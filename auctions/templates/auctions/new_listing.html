@@ -2,7 +2,7 @@
 
 {% block body %}
 
-<form action="{% url 'index' %}" method="post">
+<form action="{% url 'new' %}" method="post">
     {% csrf_token %}
     <input  type="text" name="title">
     <textarea name="description"></textarea>

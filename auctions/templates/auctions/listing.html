@@ -2,10 +2,25 @@
 
 {% block body %}
   
+    {% if cur_user == user.username %}
+        <a href="#"><p>close</p></a>
+    {% endif %}
+
     {{ cur.title }}
 
-    <form action="#" method="post">
-        <textarea></textarea>
+    <form action="{% url 'clisting' cur.title %}" method="post">
+        {% csrf_token %}
+        <input name="bid" type="number">
+        <input type="submit" value="Bid!">
+    </form>
+
+    <form action="{% url 'clisting' cur.title %}" method="post">
+        {% csrf_token %}
+        <textarea name="comment" ></textarea>
         <input type="submit" value="comment">
     </form>
+
+    {% for comments in cur_comments %}
+        {{ comments.comment }}
+    {% endfor %}
 {% endblock %}

@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 
-from .models import User, Listings
+from .models import User, Listings, Comments
 
 def index(request):
     active_listings = Listings.objects.all()
@@ -83,6 +83,24 @@ def newListing(request):
 def current_listing(request, listing):
     if request.method == "GET":
         cur = Listings.objects.filter(title=listing)
+        cur_comments = Comments.objects.select_related('listing').filter(listing_id=cur[0].id)
+        cur_user = str(cur[0].owner_id)
         return render(request, "auctions/listing.html", {
-            "cur":cur[0]
+            "cur":cur[0],
+            "cur_comments":cur_comments,
+            "cur_user": cur_user
         })
+
+    else:
+        cur = Listings.objects.filter(title=listing)
+
+        try:
+            new_comment = request.POST["comment"]
+            store_comment = Comments(comment=new_comment, commenter=request.user, listing=cur[0])
+            store_comment.save()
+            return HttpResponse("It worked")
+        
+        except: 
+            new_bid = request.POST["bid"]
+            update_bids = Listings.objects.filter(title=listing).update(bids=new_bid)
+            return HttpResponse("It worked")

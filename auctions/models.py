@@ -2,10 +2,9 @@ from tkinter import CASCADE
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-
 class User(AbstractUser):
+    watchlist = models.ManyToManyField('Listings', blank=True, related_name="watchlist")
     pass
-
 
 class Listings(models.Model):
     title = models.CharField(max_length=30)
@@ -15,9 +14,11 @@ class Listings(models.Model):
     category = models.CharField(max_length=20)
     is_open = models.BooleanField(default=True)
     owner_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    
 
 
 class Comments(models.Model):
     comment = models.TextField(max_length=600)
     listing = models.ForeignKey(Listings, on_delete=models.CASCADE)
     commenter = models.ForeignKey(User, on_delete=models.CASCADE)
+

@@ -1,7 +1,11 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-  
+    {% if in_watchlist %}
+    <a href="{% url 'remWatchlist' cur.id %}">Remove from watchlist</a>
+    {% else %}
+    <a href="{% url 'addWatchlist' cur.id %}">Add to watchlist</a>
+    {% endif %}
     {% if cur_user == user.username %}
         <a href="#"><p>close</p></a>
     {% endif %}

@@ -85,10 +85,18 @@ def current_listing(request, listing):
         cur = Listings.objects.filter(title=listing)
         cur_comments = Comments.objects.select_related('listing').filter(listing_id=cur[0].id)
         cur_user = str(cur[0].owner_id)
+        watchlist = cur[0].watchlist.all()
+        if request.user in watchlist:
+            in_watchlist = True
+        else:
+            in_watchlist = False
+
+        print(in_watchlist)
         return render(request, "auctions/listing.html", {
             "cur":cur[0],
             "cur_comments":cur_comments,
-            "cur_user": cur_user
+            "cur_user": cur_user,
+            "in_watchlist": in_watchlist
         })
 
     else:
@@ -104,3 +112,15 @@ def current_listing(request, listing):
             new_bid = request.POST["bid"]
             update_bids = Listings.objects.filter(title=listing).update(bids=new_bid)
             return HttpResponse("It worked")
+
+def addWatchlist(request, listing_id):
+    listing = Listings.objects.get(pk=listing_id)
+    user = User.objects.get(pk=request.user.id)
+    user.watchlist.add(listing)
+    return HttpResponse("It worked")
+
+def remWatchlist(request, listing_id):
+    instance = User.objects.get(pk=request.user.id)
+    listing = Listings.objects.get(pk=listing_id)
+    instance.watchlist.remove(listing)
+    return HttpResponse("It worked")

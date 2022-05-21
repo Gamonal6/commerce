@@ -5,7 +5,9 @@
 
 
     {% for active in active_listings %}
-        <a href="{% url 'clisting' active.title %}">{{ active.title }}</a>
+        {% if active.is_open == True %}
+            <a href="{% url 'clisting' active.title %}">{{ active.title }}</a>
+        {% endif %}
     {% endfor %}
     
 {% endblock %}

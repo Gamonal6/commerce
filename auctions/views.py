@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 
-from .models import User, Listings, Comments
+from .models import User, Listings, Comments, Bids
 
 def index(request):
     active_listings = Listings.objects.all()
@@ -76,7 +76,9 @@ def newListing(request):
     else:
         current_user = request.user  #Gather the current user information to link to the listings database
         new_listing = request.POST
-        new_data = Listings(title=new_listing["title"], bids=new_listing["bid"], description=new_listing["description"], img_url=new_listing["img-url"], category=new_listing["category"], owner_id=current_user)
+        new_bid = Bids(price = new_listing["bid"], bidder_id = current_user, title = new_listing["title"])
+        new_bid.save()
+        new_data = Listings(title=new_listing["title"], bids_id=new_bid, description=new_listing["description"], img_url=new_listing["img-url"], category=new_listing["category"], owner_id=current_user)
         new_data.save()
         return HttpResponseRedirect(reverse("index"))
 
@@ -102,16 +104,17 @@ def current_listing(request, listing):
     else:
         cur = Listings.objects.filter(title=listing)
 
-        try:
-            new_comment = request.POST["comment"]
-            store_comment = Comments(comment=new_comment, commenter=request.user, listing=cur[0])
-            store_comment.save()
-            return HttpResponse("It worked")
+        new_comment = request.POST["comment"]
+        store_comment = Comments(comment=new_comment, commenter=request.user, listing=cur[0])
+        store_comment.save()
+        return HttpResponse("It worked")
         
-        except: 
-            new_bid = request.POST["bid"]
-            update_bids = Listings.objects.filter(title=listing).update(bids=new_bid)
-            return HttpResponse("It worked")
+
+def addBid(request, listing_id):
+    update_bids = Listings.objects.get(pk=listing_id)
+    updateb = Bids.objects.filter(pk = update_bids.title).update(price = request.POST["bid"], bidder_id = request.user)
+    
+    return HttpResponse("It worked")
 
 def addWatchlist(request, listing_id):
     listing = Listings.objects.get(pk=listing_id)
@@ -124,3 +127,30 @@ def remWatchlist(request, listing_id):
     listing = Listings.objects.get(pk=listing_id)
     instance.watchlist.remove(listing)
     return HttpResponse("It worked")
+
+def closeListing(request, listing_id):
+    listing = Listings.objects.filter(pk=listing_id)
+    listing.update(is_open=False)
+    return HttpResponse("It worked")
+
+def ceategoryList(request):
+    categories = ["Categorie1", "Categorie2", "Categorie3", "Categorie4"]
+    return render(request, "auctions/categoryList.html", {
+        "categories": categories
+    })
+
+def categorySearch(request, category):
+    category_list = Listings.objects.filter(category=category)
+
+    return render(request, "auctions/category.html", {
+        "category_list": category_list
+    })
+
+
+def watchlist(request): 
+    current_user = request.user
+    users_watchlist = current_user.watchlist.all()
+
+    return render(request, "auctions/watchlist.html", {
+        "watchlist":users_watchlist
+    })
